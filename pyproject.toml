@@ -44,11 +44,18 @@ filterwarnings = [
 
 [tool.poe.tasks]
 start-infra = "docker compose up -d"
-start-gateway = "uv run uvicorn services.gateway.main:app --host 0.0.0.0 --port 8000 --reload"
-start-retrieval = "uv run uvicorn services.retrieval.main:app --host 0.0.0.0 --port 8001 --reload"
-start-ingestion = "uv run uvicorn services.ingestion.main:app --host 0.0.0.0 --port 8002 --reload"
-start-embedding = "uv run uvicorn services.embedding.main:app --host 0.0.0.0 --port 8003 --reload"
-start-frontend = { cmd = "npm run dev", cwd = "services/frontend" }
+start-retrieval = "uv run uvicorn services.retrieval.main:app --host 0.0.0.0 --port 8001"
+start-ingestion = "uv run uvicorn services.ingestion.main:app --host 0.0.0.0 --port 8002"
+start-embedding = "uv run uvicorn services.embedding.main:app --host 0.0.0.0 --port 8003"
+start-frontend = { cmd = "npm.cmd run dev", cwd = "services/frontend" }
+test-cli = "uv run python -m services.cli_tester.main"
+demo-cli = "uv run python services/cli_tester/demo.py"
+check-services = "uv run python services/cli_tester/service_check.py"
+
+[tool.poe.tasks.start-gateway]
+env = { OLLAMA_MODEL = "gemma3:4b" }
+cmd = "uv run uvicorn services.gateway.main:app --host 0.0.0.0 --port 8000"
 
 [tool.poe.tasks.dev]
+env = { OLLAMA_MODEL = "gemma3:4b" }
 parallel = ["start-gateway", "start-retrieval", "start-ingestion", "start-embedding", "start-frontend"]

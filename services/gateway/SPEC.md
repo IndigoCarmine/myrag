@@ -30,8 +30,21 @@ The Gateway Service is the orchestrator of the RAG pipeline. It exposes the publ
     *   Stream the response or wait for completion (depending on frontend requirements, currently assume blocking for simplicity).
 5.  **Response Formatting**:
     *   Extract the answer text.
-    *   Parse/Verify citations (optional, but good for robustness).
-    *   Return JSON response.
+    *   Aggregate page numbers by DOI from search results.
+    *   **Resolve DOIs to web metadata** using CrossRef API:
+        *   Query CrossRef for each unique DOI
+        *   Extract: title, authors, journal, publication date, URLs
+        *   Fallback to DOI resolver URL if API fails
+    *   Create Citation objects containing:
+        *   `doi`: The DOI string
+        *   `pages`: Sorted list of unique page numbers where this DOI appeared
+        *   `title`: Paper title (from web metadata or local metadata)
+        *   `url`: DOI resolver URL (e.g., `https://doi.org/10.1234/5678`)
+        *   `pdf_url`: Direct PDF URL if available (often null)
+        *   `authors`: List of author names
+        *   `journal`: Journal name
+        *   `published_date`: Publication date (ISO format)
+    *   Return JSON response with enriched citations.
 
 ## Dependencies
 *   **Framework**: FastAPI

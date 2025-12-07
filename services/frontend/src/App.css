@@ -115,17 +115,110 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.citation {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+/* Citation Styles */
+.citations-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.message.bot .citation {
-  border-top-color: rgba(255, 255, 255, 0.2);
+.citations-title {
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem 0;
+  color: #00f2fe;
+  font-weight: 600;
+}
+
+.citation-item {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.citation-header {
+  margin-bottom: 0.5rem;
+}
+
+.citation-header strong {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.citation-date {
+  color: #aaa;
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.citation-authors {
+  color: #ccc;
+  margin-bottom: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.citation-journal {
+  color: #bbb;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.citation-meta {
+  margin-bottom: 0.5rem;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.citation-doi a {
+  color: #4facfe;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.citation-doi a:hover {
+  color: #00f2fe;
+  text-decoration: underline;
+}
+
+.citation-pages {
+  color: #999;
+}
+
+.citation-links {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.citation-link {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: rgba(79, 172, 254, 0.2);
+  border: 1px solid rgba(79, 172, 254, 0.3);
+  border-radius: 6px;
+  color: #4facfe;
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.citation-link:hover {
+  background: rgba(79, 172, 254, 0.3);
+  border-color: #4facfe;
+  color: #00f2fe;
+}
+
+.citation-link.pdf-link {
+  background: rgba(0, 242, 254, 0.2);
+  border-color: rgba(0, 242, 254, 0.3);
+  color: #00f2fe;
+}
+
+.citation-link.pdf-link:hover {
+  background: rgba(0, 242, 254, 0.3);
+  border-color: #00f2fe;
 }
 
 .input-area {

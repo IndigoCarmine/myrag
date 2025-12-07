@@ -21,11 +21,31 @@ The Gateway Service acts as the main entry point for the frontend/user. It orche
     {
       "answer": "The method achieves 95% accuracy...",
       "citations": [
-        "doi:10.1234/5678",
-        "doi:10.9876/5432"
+        {
+          "doi": "10.1234/5678",
+          "pages": [3, 5, 7],
+          "title": "A Novel Approach to Machine Learning",
+          "url": "https://doi.org/10.1234/5678",
+          "pdf_url": "https://example.com/paper.pdf",
+          "authors": ["John Doe", "Jane Smith"],
+          "journal": "Journal of Machine Learning Research",
+          "published_date": "2023-05-15"
+        },
+        {
+          "doi": "10.9876/5432",
+          "pages": [12],
+          "title": "Deep Learning Fundamentals",
+          "url": "https://doi.org/10.9876/5432",
+          "pdf_url": null,
+          "authors": ["Alice Johnson"],
+          "journal": "Neural Networks",
+          "published_date": "2022-11-20"
+        }
       ]
     }
     ```
+    
+    **Note**: The `url` field always contains the DOI resolver URL, which redirects to the publisher's page. The `pdf_url` may be `null` if not available from the publisher.
 
 ### 2. Health Check
 *   **URL**: `/health`

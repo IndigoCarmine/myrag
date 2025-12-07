@@ -121,8 +121,65 @@ function App() {
                 <div key={idx} className={`message ${msg.role}`}>
                   {msg.content}
                   {msg.citations && msg.citations.length > 0 && (
-                    <div className="citation">
-                      Sources: {msg.citations.map(c => `[${c}]`).join(', ')}
+                    <div className="citations-section">
+                      <h4 className="citations-title">📚 Sources:</h4>
+                      {msg.citations.map((citation, citIdx) => (
+                        <div key={citIdx} className="citation-item">
+                          <div className="citation-header">
+                            <strong>{citation.title || citation.doi}</strong>
+                            {citation.published_date && (
+                              <span className="citation-date"> ({citation.published_date})</span>
+                            )}
+                          </div>
+
+                          {citation.authors && citation.authors.length > 0 && (
+                            <div className="citation-authors">
+                              {citation.authors.slice(0, 3).join(', ')}
+                              {citation.authors.length > 3 && ' et al.'}
+                            </div>
+                          )}
+
+                          {citation.journal && (
+                            <div className="citation-journal">
+                              <em>{citation.journal}</em>
+                            </div>
+                          )}
+
+                          <div className="citation-meta">
+                            <span className="citation-doi">
+                              DOI: <a href={citation.url} target="_blank" rel="noopener noreferrer">
+                                {citation.doi}
+                              </a>
+                            </span>
+                            {citation.pages && citation.pages.length > 0 && (
+                              <span className="citation-pages">
+                                {' | Pages: ' + citation.pages.join(', ')}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="citation-links">
+                            <a
+                              href={citation.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="citation-link"
+                            >
+                              🔗 View Paper
+                            </a>
+                            {citation.pdf_url && (
+                              <a
+                                href={citation.pdf_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="citation-link pdf-link"
+                              >
+                                📄 Download PDF
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

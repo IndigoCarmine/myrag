@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from .processor import extract_metadata_grobid, extract_text_from_pdf, create_chunks
 from .clients import EmbeddingClient, QdrantHandler
@@ -8,6 +9,15 @@ import traceback
 logger = setup_logger("ingestion_service")
 
 app = FastAPI(title="Ingestion Service")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize Clients
 # Note: In a real app, these might be singletons or dependencies infused via FastAPI Depends

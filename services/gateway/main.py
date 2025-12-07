@@ -1,23 +1,47 @@
 import os
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+from .doi_resolver import DOIResolver
 
 app = FastAPI(title="Gateway Service")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configuration
 RETRIEVAL_URL = os.getenv("RETRIEVAL_URL", "http://localhost:8001")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3") # Default model, can be configured
 
+# Initialize DOI Resolver
+doi_resolver = DOIResolver()
+
 class ChatRequest(BaseModel):
     query: str
     history: Optional[List[dict]] = None
 
+class Citation(BaseModel):
+    doi: str
+    pages: List[int]
+    title: Optional[str] = None
+    url: Optional[str] = None  # DOI resolver URL (always available)
+    pdf_url: Optional[str] = None  # Direct PDF URL (if available)
+    authors: Optional[List[str]] = None
+    journal: Optional[str] = None
+    published_date: Optional[str] = None
+
 class ChatResponse(BaseModel):
     answer: str
-    citations: List[str]
+    citations: List[Citation]
 
 class RetrievalResult(BaseModel):
     text: str
@@ -46,7 +70,7 @@ async def chat(request: ChatRequest):
 
     # 2. Context Retrieval
     context_text = ""
-    references = []
+    doi_info = {}  # {doi: {"pages": set(), "title": str}}
     
     try:
         async with httpx.AsyncClient() as client:
@@ -59,17 +83,25 @@ async def chat(request: ChatRequest):
             search_data = retrieval_resp.json()
             results = search_data.get("results", [])
             
-            # Format Context for the LLM
+            # Format Context for the LLM and collect DOI/page information
             formatted_context = []
             for idx, res in enumerate(results, 1):
-                doi = res["metadata"].get("doi", "N/A")
+                metadata = res.get("metadata", {})
+                doi = metadata.get("doi", "N/A")
+                page = metadata.get("page")
+                title = metadata.get("title", "")
                 text = res.get("text", "")
                 
-                # Create a citation string for the LLM to reference
-                formatted_context.append(f"[{idx}] (DOI: {doi}) {text}")
-                
+                # Collect page information for each DOI
                 if doi != "N/A":
-                    references.append(doi)
+                    if doi not in doi_info:
+                        doi_info[doi] = {"pages": set(), "title": title}
+                    if page is not None:
+                        doi_info[doi]["pages"].add(page)
+                
+                # Create a citation string for the LLM to reference
+                page_info = f", page {page}" if page is not None else ""
+                formatted_context.append(f"[{idx}] (DOI: {doi}{page_info}) {text}")
             
             context_text = "\n\n".join(formatted_context)
             
@@ -121,12 +153,29 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=503, detail=f"LLM Service returned error: {e}")
 
     # 5. Response Formatting
-    # We return the list of DOIs that were in the context as potential citations.
-    unique_citations = list(set(references))
+    # Convert doi_info to Citation objects with sorted page numbers
+    # and enrich with web metadata from DOI resolver
+    citations = []
+    
+    for doi, info in doi_info.items():
+        # Resolve DOI to get web metadata
+        web_metadata = await doi_resolver.resolve(doi)
+        
+        citation = Citation(
+            doi=doi,
+            pages=sorted(list(info["pages"])),
+            title=web_metadata.get("title") if web_metadata else info.get("title"),
+            url=web_metadata.get("url") if web_metadata else f"https://doi.org/{doi}",
+            pdf_url=web_metadata.get("pdf_url") if web_metadata else None,
+            authors=web_metadata.get("authors") if web_metadata else None,
+            journal=web_metadata.get("journal") if web_metadata else None,
+            published_date=web_metadata.get("published_date") if web_metadata else None,
+        )
+        citations.append(citation)
     
     return ChatResponse(
         answer=answer,
-        citations=unique_citations
+        citations=citations
     )
 
 if __name__ == "__main__":
