@@ -1,0 +1,54 @@
+[project]
+name = "myrag-root"
+version = "0.1.0"
+description = "Local RAG System - Single Root Project"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "sentence-transformers",
+    "torch",
+    "numpy",
+    "python-multipart",
+    "pymupdf",
+    "requests",
+    "beautifulsoup4",
+    "lxml",
+    "qdrant-client",
+    "structlog", 
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+    "respx",
+    "pytest-asyncio",
+    "poethepoet>=0.38.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["services"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.poe.tasks]
+start-infra = "docker compose up -d"
+start-gateway = "uv run uvicorn services.gateway.main:app --host 0.0.0.0 --port 8000 --reload"
+start-retrieval = "uv run uvicorn services.retrieval.main:app --host 0.0.0.0 --port 8001 --reload"
+start-ingestion = "uv run uvicorn services.ingestion.main:app --host 0.0.0.0 --port 8002 --reload"
+start-embedding = "uv run uvicorn services.embedding.main:app --host 0.0.0.0 --port 8003 --reload"
+start-frontend = { cmd = "npm run dev", cwd = "services/frontend" }
+
+[tool.poe.tasks.dev]
+parallel = ["start-gateway", "start-retrieval", "start-ingestion", "start-embedding", "start-frontend"]

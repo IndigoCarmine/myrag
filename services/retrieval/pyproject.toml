@@ -1,0 +1,16 @@
+[project]
+name = "retrieval-service"
+version = "0.1.0"
+description = "Retrieval Service for Local RAG"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "qdrant-client",
+    "requests",
+    "pydantic",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

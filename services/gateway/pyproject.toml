@@ -1,0 +1,15 @@
+[project]
+name = "gateway-service"
+version = "0.1.0"
+description = "Gateway Service for Local RAG"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "httpx",
+    "pydantic",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
